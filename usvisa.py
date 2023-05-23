@@ -125,6 +125,7 @@ def get_date():
         session = driver.get_cookie("_yatri_session")["value"]
     except:
         print("get_date() failed to get cookies")
+        raise
     try:
         NEW_GET = driver.execute_script(
             "var req = new XMLHttpRequest();req.open('GET', '"
@@ -135,6 +136,7 @@ def get_date():
         )
     except:
         print("get_date() failed to execute script")
+        raise
     return json.loads(NEW_GET)
 
 def get_time(date):
