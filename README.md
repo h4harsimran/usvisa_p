@@ -4,7 +4,9 @@ US VISA (ais.usvisa-info.com) appointment re-scheduler
 - Having a US VISA appointment scheduled already
 - Google Chrome installed (to be controlled by the script)
 - Python v3 installed (for running the script)
-- API token from Pushover (for notifications)
+- API token from www.pushover.net (for notifications). Check their documentation on how to connect the app on your phone.
+  > User key token will be on your main portal when you login.
+  > For API token, you will have to create a app on the portal. Click on app and you will see the API token. 
 
 ## Initial Setup
 - Create a `config.ini` file with all the details required
