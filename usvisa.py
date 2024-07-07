@@ -32,7 +32,7 @@ REGEX_CONTINUE = "//a[contains(text(),'Continue')]"
 def MY_CONDITION(month, day): return True # No custom condition wanted for the new scheduled date
 
 STEP_TIME = 0.5  # time between steps (interactions with forms): 0.5 seconds
-RETRY_TIME = 60*3  # wait time between retries/checks for available dates: 3 minutes
+RETRY_TIME = 60*15  # wait time between retries/checks for available dates: 15 minutes
 EXCEPTION_TIME =60*30  # wait time when an exception occurs: 30 minutes
 COOLDOWN_TIME = 60*60*2  # wait time when temporary banned (empty list): 120 minutes
 
@@ -54,16 +54,15 @@ def send_notification(msg):
         requests.post(url, data)
 
 def get_driver():
-    if LOCAL_USE:
-        service = Service(ChromeDriverManager().install())
-        options = webdriver.ChromeOptions()
-        options.add_argument("--verbose")
-        options.add_argument('--no-sandbox')
-        options.add_argument('--headless')
-        options.add_argument('--disable-gpu')
-        options.add_argument("--window-size=1920, 1200")
-        options.add_argument('--disable-dev-shm-usage')
-        driver = webdriver.Chrome(service=service, options=options)
+    service = Service(ChromeDriverManager().install())
+    options = webdriver.ChromeOptions()
+    options.add_argument("--verbose")
+    options.add_argument('--no-sandbox')
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument("--window-size=1920, 1200")
+    options.add_argument('--disable-dev-shm-usage')
+    driver = webdriver.Chrome(service=service, options=options)
     return driver
 
 driver = get_driver()
@@ -121,22 +120,25 @@ def do_login_action():
     print("\tlogin successful!")
     
 def get_date():
-    try:
-        session = driver.get_cookie("_yatri_session")["value"]
-    except:
-        print("get_date() failed to get cookies")
-        raise
-    try:
-        NEW_GET = driver.execute_script(
-            "var req = new XMLHttpRequest();req.open('GET', '"
-            + str(DATE_URL)
-            + "', false);req.setRequestHeader('Accept', 'application/json, text/javascript, */*; q=0.01');req.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); req.setRequestHeader('Cookie', '_yatri_session="
-            + session
-            + "'); req.send(null);return req.responseText;"
-        )
-    except:
-        print("get_date() failed to execute script")
-        raise
+    # driver.get(DATE_URL)
+    #try:
+    #    driver.get(APPOINTMENT_URL)
+    #except:
+    #    print("get_date() failed to get URL")
+    
+    session = driver.get_cookie("_yatri_session")["value"]
+    
+    #print("get_date() failed to get cookies")
+    
+    NEW_GET = driver.execute_script(
+        "var req = new XMLHttpRequest();req.open('GET', '"
+        + str(DATE_URL)
+        + "', false);req.setRequestHeader('Accept', 'application/json, text/javascript, */*; q=0.01');req.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); req.setRequestHeader('Cookie', '_yatri_session="
+        + session
+        + "'); req.send(null);return req.responseText;"
+    )
+    
+        #print("get_date() failed to execute script")
     return json.loads(NEW_GET)
 
 def get_time(date):
@@ -270,7 +272,11 @@ if __name__ == "__main__":
                     print("Failed to get appointment URL")
                 dates = get_date()[:5]
             except:
-                login()
+                try:
+                    login()
+                except:
+                    print("Failed to get login")
+                    raise
                 dates = get_date()[:5]     
             
             if not dates:
@@ -304,4 +310,8 @@ if __name__ == "__main__":
             msg = "Help! Script Crashed" 
             send_notification(msg)
             break
-               
+                
+
+
+
+
