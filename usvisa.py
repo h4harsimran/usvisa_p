@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed May 17 13:39:11 2023
+
+@author: harsi
+"""
 import time
 import json
 import random
@@ -24,8 +30,8 @@ MY_SCHEDULE_DATE = config['USVISA']['MY_SCHEDULE_DATE']
 COUNTRY_CODE = config['USVISA']['COUNTRY_CODE'] 
 FACILITY_ID = config['USVISA']['FACILITY_ID']
 
-PUSH_TOKEN = config['PUSHOVER']['PUSH_TOKEN']
-PUSH_USER = config['PUSHOVER']['PUSH_USER']
+BOT_TOKEN = config['TELEGRAM']['BOT_TOKEN']
+USER_ID1 = config['TELEGRAM']['USER_ID1']
 
 REGEX_CONTINUE = "//a[contains(text(),'Continue')]"
 
@@ -42,26 +48,24 @@ APPOINTMENT_URL = f"https://ais.usvisa-info.com/{COUNTRY_CODE}/niv/schedule/{SCH
 EXIT = False
 
 def send_notification(msg):
-    print(f"Sending notification: {msg}")
+	# Create url
+	url = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
 
-    if PUSH_TOKEN:
-        url = "https://api.pushover.net/1/messages.json"
-        data = {
-            "token": PUSH_TOKEN,
-            "user": PUSH_USER,
-            "message": msg
-        }
-        requests.post(url, data)
+	# Create json link with message
+	data1 = {'chat_id': USER_ID1, 'text': msg}
+	
+	# POST the message
+	requests.post(url, data1)
 
 def get_driver():
     service = Service(ChromeDriverManager().install())
     options = webdriver.ChromeOptions()
     options.add_argument("--verbose")
-    options.add_argument('--no-sandbox')
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument("--window-size=1920, 1200")
-    options.add_argument('--disable-dev-shm-usage')
+    #options.add_argument('--no-sandbox')
+    #options.add_argument('--headless')
+    #options.add_argument('--disable-gpu')
+    #options.add_argument("--window-size=1920, 1200")
+    #options.add_argument('--disable-dev-shm-usage')
     driver = webdriver.Chrome(service=service, options=options)
     return driver
 
@@ -119,17 +123,8 @@ def do_login_action():
 
     print("\tlogin successful!")
     
-def get_date():
-    # driver.get(DATE_URL)
-    #try:
-    #    driver.get(APPOINTMENT_URL)
-    #except:
-    #    print("get_date() failed to get URL")
-    
-    session = driver.get_cookie("_yatri_session")["value"]
-    
-    #print("get_date() failed to get cookies")
-    
+def get_date():    
+    session = driver.get_cookie("_yatri_session")["value"] 
     NEW_GET = driver.execute_script(
         "var req = new XMLHttpRequest();req.open('GET', '"
         + str(DATE_URL)
@@ -137,12 +132,9 @@ def get_date():
         + session
         + "'); req.send(null);return req.responseText;"
     )
-    
-        #print("get_date() failed to execute script")
     return json.loads(NEW_GET)
 
 def get_time(date):
-    
     time_url = TIME_URL % date
     try:
         session = driver.get_cookie("_yatri_session")["value"]
@@ -244,15 +236,7 @@ def reschedule(date):
         EXIT = True
     else:
         msg = f"Reschedule Failed. {date} {time}"
-        send_notification(msg)
-
-
-def push_notification(dates):
-    msg = "date: "
-    for d in dates:
-        msg = msg + d.get('date') + '; '
-    send_notification(msg)
-    
+        send_notification(msg)  
 
 if __name__ == "__main__":
     login()
@@ -306,12 +290,11 @@ if __name__ == "__main__":
                     for _ in tqdm(range(ret_time)):
                         time.sleep(1)
                     retry_count+=1
-        except:
-            msg = "Help! Script Crashed" 
+	except Exception as e:
+            msg = f"Help! Script Crashed: {e}" 
             send_notification(msg)
             break
                 
-
 
 
 
