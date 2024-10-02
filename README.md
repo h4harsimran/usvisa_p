@@ -1,5 +1,5 @@
 # Description
-US VISA (ais.usvisa-info.com) appointment re-scheduler
+US VISA (ais.usvisa-info.com) appointment re-scheduler for Canada. 
 ## Prerequisites
 - Having a US VISA appointment scheduled already
 - Google Chrome installed (to be controlled by the script)
