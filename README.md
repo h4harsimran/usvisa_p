@@ -26,7 +26,7 @@ US VISA (ais.usvisa-info.com) appointment re-scheduler for Canada.
 - Install the required python packages: `pip3 install -r requirements.txt`
 
 ## Executing the script
-- Simply run `python3 visa.py`
+- Simply run `python3 usvisa.py`
 - That's it!
 
 ## Acknowledgement
