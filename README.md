@@ -18,7 +18,8 @@ US VISA (ais.usvisa-info.com) appointment re-scheduler
 8. Add the token ID you received in previous step in `config.ini`
 ### Get your User ID
 1. Look for @userinfobot on the Telegram
-2. Press /start. It will provide you with a User ID. Add it to `config.ini`
+2. Press /start.
+3. It will provide you with a User ID. Add it to `config.ini`
 
 ## Initial Setup
 - Add your required information in the `config.ini` file.
