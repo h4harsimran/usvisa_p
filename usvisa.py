@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 Created on Wed May 17 13:39:11 2023
@@ -33,14 +34,16 @@ FACILITY_ID = config['USVISA']['FACILITY_ID']
 BOT_TOKEN = config['TELEGRAM']['BOT_TOKEN']
 USER_ID1 = config['TELEGRAM']['USER_ID1']
 
+SHOW_GUI = config['BROWSEROPTION']['SHOW_GUI']
+
 REGEX_CONTINUE = "//a[contains(text(),'Continue')]"
 
 def MY_CONDITION(month, day): return True # No custom condition wanted for the new scheduled date
 
-STEP_TIME = 0.5  # time between steps (interactions with forms): 0.5 seconds
-RETRY_TIME = 60*15  # wait time between retries/checks for available dates: 15 minutes
-EXCEPTION_TIME =60*30  # wait time when an exception occurs: 30 minutes
-COOLDOWN_TIME = 60*60*2  # wait time when temporary banned (empty list): 120 minutes
+STEP_TIME = 0.5  # time between steps (interactions with forms): Best 0.5 seconds
+RETRY_TIME = 60*15  # wait time between retries/checks for available dates: Best 15 minutes
+EXCEPTION_TIME =60*30  # wait time when an exception occurs: Best 30 minutes
+COOLDOWN_TIME = 60*60*2  # wait time when temporarily banned (empty list): Best 120 minutes
 
 DATE_URL = f"https://ais.usvisa-info.com/{COUNTRY_CODE}/niv/schedule/{SCHEDULE_ID}/appointment/days/{FACILITY_ID}.json?appointments[expedite]=false"
 TIME_URL = f"https://ais.usvisa-info.com/{COUNTRY_CODE}/niv/schedule/{SCHEDULE_ID}/appointment/times/{FACILITY_ID}.json?date=%s&appointments[expedite]=false"
@@ -61,11 +64,16 @@ def get_driver():
     service = Service(ChromeDriverManager().install())
     options = webdriver.ChromeOptions()
     options.add_argument("--verbose")
-    #options.add_argument('--no-sandbox')
-    #options.add_argument('--headless')
-    #options.add_argument('--disable-gpu')
-    #options.add_argument("--window-size=1920, 1200")
-    #options.add_argument('--disable-dev-shm-usage')
+    if SHOW_GUI == 'False':
+        options.add_argument('--no-sandbox')
+        options.add_argument('--headless')
+        options.add_argument('--disable-gpu')
+        options.add_argument("--window-size=1920, 1200")
+        options.add_argument("enable-automation")
+        options.add_argument("--disable-infobars")
+        options.add_argument('--disable-dev-shm-usage')
+        user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
+        options.add_argument(f'user-agent={user_agent}')
     driver = webdriver.Chrome(service=service, options=options)
     return driver
 
@@ -239,6 +247,7 @@ def reschedule(date):
         send_notification(msg)  
 
 if __name__ == "__main__":
+    
     login()
     retry_count = 0
     while 1:
@@ -254,6 +263,7 @@ if __name__ == "__main__":
                     driver.get(APPOINTMENT_URL)
                 except:
                     print("Failed to get appointment URL")
+                time.sleep(4*STEP_TIME+random.random())
                 dates = get_date()[:5]
             except:
                 try:
@@ -261,12 +271,13 @@ if __name__ == "__main__":
                 except:
                     print("Failed to get login")
                     raise
+                time.sleep(4*STEP_TIME+random.random())
                 dates = get_date()[:5]     
             
             if not dates:
                 cool_time = COOLDOWN_TIME+random.randint(1,30)
-                print(f"No date available, temporary banned....retrying in {cool_time} sec")
-                msg=f"No date available, temporary banned....retrying in {cool_time} sec"
+                msg=f"No date available....retrying in {cool_time} sec"
+                print(msg)
                 send_notification(msg)
                 print("Cooldown period progress:")
                 for _ in tqdm(range(cool_time)):
@@ -278,19 +289,21 @@ if __name__ == "__main__":
                 date = get_available_date(dates)
                 if date:
                     print()
-                    print(f"New date: {date}")  
-                    msg = f"Date available: {date}" 
+                    msg = f"Date available: {date}"
+                    print(msg)
                     send_notification(msg)
                     reschedule(date)
                     break              
                 if not date:
                     ret_time = RETRY_TIME+random.randint(1,30)
-                    print(f"No earlier date is available....retrying in {ret_time} sec")
+                    msg=f"No earlier date is available....retrying in {ret_time} sec"
+                    print(msg)
+		    
                     print("Retry wait period progress:")
                     for _ in tqdm(range(ret_time)):
                         time.sleep(1)
                     retry_count+=1
-	except Exception as e:
+        except Exception as e:
             msg = f"Help! Script Crashed: {e}" 
             send_notification(msg)
             break
