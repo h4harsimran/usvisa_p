@@ -28,7 +28,7 @@
 
 ## Executing the script
 - Simply run `python3 visa1.py`
-  > If running on a remote terminal that does not have GUI (e.g. Amazon EC2), use `screen` command first to run it on a separate screen. Press `CTRL+a` and then `d` to detach from the screen. The script will keep running in the background. Use `screen -ls` to get your screen number. You can go back to screen by using `screen -r 12345` (replace 12345 with your actual screen number).
+  > If running on a remote terminal that does not have GUI (e.g. Amazon EC2), use `screen` command first to run it on a separate screen. Press `CTRL+a` and then `d` to detach from the screen, once the script is running. The script will keep running in the background. Use `screen -ls` to get your screen number. You can go back to screen by using `screen -r 12345` (replace 12345 with your actual screen number).
 - That's it!
 
 ## Acknowledgement
