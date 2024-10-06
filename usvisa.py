@@ -267,6 +267,7 @@ if __name__ == "__main__":
                 dates = get_date()[:5]
             except:
                 try:
+                    driver.delete_all_cookies()
                     login()
                 except:
                     print("Failed to get login")
